@@ -1,0 +1,10 @@
+# Exclude uploaded and mastered audio files
+audio/uploads/*
+audio/mastered/*
+!audio/uploads/.gitkeep
+!audio/mastered/.gitkeep
+
+# Exclude Python cache
+__pycache__/
+*.pyc
+venv/
