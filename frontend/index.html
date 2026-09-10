@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>BoominNoir MASTERLAB STUDIO</title>
+
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+    <!-- BACKGROUND -->
+    <div class="noise"></div>
+    <div class="cursor-glow"></div>
+
+    <!-- NAVIGATION -->
+    <header class="navbar">
+
+        <div class="brand">
+            <div class="brand-mark">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+
+            <div>
+                <div class="brand-name">BOOMINNOIR</div>
+                <div class="brand-sub">MASTERLAB STUDIO</div>
+            </div>
+        </div>
+
+        <nav>
+            <a href="#studio">Studio</a>
+            <a href="#mastering">Mastering</a>
+            <a href="#about">About</a>
+        </nav>
+
+        <div class="system-status">
+            <span></span>
+            SYSTEM ONLINE
+        </div>
+
+    </header>
+
+
+    <!-- HERO -->
+    <main id="studio">
+
+        <section class="hero">
+
+            <canvas id="particles"></canvas>
+
+            <div class="hero-grid"></div>
+
+            <div class="hero-content">
+
+                <div class="eyebrow">
+                    <span class="live-dot"></span>
+                    AI-POWERED AUDIO MASTERING
+                </div>
+
+                <h1>
+                    MAKE YOUR
+                    <span class="gradient-text">MUSIC</span>
+                    <br>
+                    SOUND
+                    <span class="outline-text">FINISHED.</span>
+                </h1>
+
+                <p class="hero-description">
+                    Professional-style mastering designed to make your
+                    tracks hit harder, sound cleaner and translate across
+                    headphones, cars, clubs and speakers.
+                </p>
+
+                <!-- UPLOAD CARD -->
+                <div class="master-card" id="uploadZone">
+
+                    <div class="card-top">
+
+                        <div class="mini-brand">
+                            MASTERLAB
+                        </div>
+
+                        <div class="card-status">
+                            <span></span>
+                            READY
+                        </div>
+
+                    </div>
+
+                    <div class="upload-center">
+
+                        <div class="orb">
+
+                            <div class="orb-ring ring-one"></div>
+                            <div class="orb-ring ring-two"></div>
+                            <div class="orb-ring ring-three"></div>
+
+                            <div class="orb-core">
+                                <div class="upload-arrow">↑</div>
+                            </div>
+
+                        </div>
+
+                        <div class="upload-title">
+                            Drop your track
+                        </div>
+
+                        <div class="upload-subtitle">
+                            or select an audio file
+                        </div>
+
+                        <button class="upload-button" id="uploadButton">
+                            SELECT TRACK
+                        </button>
+
+                        <input
+                            type="file"
+                            id="fileInput"
+                            accept=".wav,.mp3,.flac,.ogg,.m4a"
+                            hidden
+                        >
+
+                    </div>
+
+                    <div class="card-footer">
+
+                        <span>WAV</span>
+                        <span>MP3</span>
+                        <span>FLAC</span>
+                        <span>OGG</span>
+                        <span>M4A</span>
+
+                    </div>
+
+                    <!-- ANIMATED WAVE -->
+                    <div class="wave-container">
+
+                        <div class="wave wave-one"></div>
+                        <div class="wave wave-two"></div>
+                        <div class="wave wave-three"></div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- SIDE LABEL -->
+            <div class="vertical-label">
+                BOOMINNOIR / AUDIO ENGINE / 001
+            </div>
+
+            <div class="scroll-indicator">
+                <span></span>
+                SCROLL TO EXPLORE
+            </div>
+
+        </section>
+
+
+        <!-- MASTERING SECTION -->
+        <section class="mastering-section" id="mastering">
+
+            <div class="section-header">
+
+                <div class="section-number">
+                    01 / MASTER
+                </div>
+
+                <h2>
+                    YOUR TRACK.
+                    <br>
+                    <span>YOUR SOUND.</span>
+                </h2>
+
+                <p>
+                    Choose the character you want your master to have.
+                    The processing engine handles the rest.
+                </p>
+
+            </div>
+
+
+            <!-- PRESETS -->
+            <div class="preset-grid">
+
+                <button class="preset active" data-preset="balanced">
+                    <span class="preset-number">01</span>
+                    <strong>BALANCED</strong>
+                    <small>Clean & natural</small>
+                </button>
+
+                <button class="preset" data-preset="clean">
+                    <span class="preset-number">02</span>
+                    <strong>CLEAN</strong>
+                    <small>Transparent dynamics</small>
+                </button>
+
+                <button class="preset" data-preset="loud">
+                    <span class="preset-number">03</span>
+                    <strong>LOUD</strong>
+                    <small>Maximum impact</small>
+                </button>
+
+                <button class="preset" data-preset="club">
+                    <span class="preset-number">04</span>
+                    <strong>CLUB</strong>
+                    <small>Heavy low end</small>
+                </button>
+
+                <button class="preset" data-preset="dark">
+                    <span class="preset-number">05</span>
+                    <strong>DARK</strong>
+                    <small>Deep & atmospheric</small>
+                </button>
+
+            </div>
+
+
+            <!-- PROCESSING PANEL -->
+            <div class="processing-panel" id="processingPanel">
+
+                <div class="processing-header">
+                    <span>MASTERING ENGINE</span>
+                    <span id="processingStatus">STANDBY</span>
+                </div>
+
+                <div class="processing-visual">
+
+                    <div class="processing-ring"></div>
+
+                    <div class="processing-text">
+                        <span id="processingPercent">00</span>
+                        <small>%</small>
+                    </div>
+
+                </div>
+
+                <div class="processing-bars">
+
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+
+                </div>
+
+            </div>
+
+
+            <!-- RESULTS -->
+            <div class="results" id="results">
+
+                <div class="results-heading">
+                    <span>MASTER COMPLETE</span>
+                    <div></div>
+                </div>
+
+                <div class="result-grid">
+
+                    <div class="audio-panel">
+
+                        <label>ORIGINAL</label>
+
+                        <div class="track-name" id="originalName">
+                            Your track
+                        </div>
+
+                        <audio id="originalAudio" controls></audio>
+
+                    </div>
+
+
+                    <div class="audio-panel mastered">
+
+                        <label>MASTERED</label>
+
+                        <div class="track-name">
+                            MASTERLAB MASTER
+                        </div>
+
+                        <audio id="masteredAudio" controls></audio>
+
+                        <a
+                            id="downloadButton"
+                            class="download-button"
+                            download
+                        >
+                            DOWNLOAD MASTER
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- FEATURES -->
+        <section class="features" id="about">
+
+            <div class="feature">
+
+                <span>01</span>
+
+                <h3>DEEP LOW END</h3>
+
+                <p>
+                    Powerful bass while keeping the mix controlled
+                    and clean.
+                </p>
+
+            </div>
+
+            <div class="feature">
+
+                <span>02</span>
+
+                <h3>CONTROLLED DYNAMICS</h3>
+
+                <p>
+                    Increase impact without crushing the life
+                    out of your track.
+                </p>
+
+            </div>
+
+            <div class="feature">
+
+                <span>03</span>
+
+                <h3>STEREO IMPACT</h3>
+
+                <p>
+                    Designed to make your production translate
+                    across different listening systems.
+                </p>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- FOOTER -->
+    <footer>
+
+        <div class="footer-brand">
+            BOOMINNOIR
+        </div>
+
+        <div class="footer-center">
+            MASTERLAB STUDIO
+        </div>
+
+        <div class="copyright">
+            © 2026 Bhomesh Doyal / BoominNoir.
+            All rights reserved.
+        </div>
+
+    </footer>
+
+
+    <script src="/static/app.js"></script>
+
+</body>
+</html>
