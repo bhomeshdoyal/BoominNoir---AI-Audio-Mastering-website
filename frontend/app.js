@@ -14,7 +14,20 @@ const masteredAudio = document.getElementById("masteredAudio");
 const originalName = document.getElementById("originalName");
 const downloadButton = document.getElementById("downloadButton");
 
+const masterButton = document.getElementById("masterButton");
+const beforeButton = document.getElementById("beforeButton");
+const afterButton = document.getElementById("afterButton");
+const comparisonPlayer = document.getElementById("comparisonPlayer");
+
+const cardStatus = document.querySelector(".card-status");
+const cardStatusText = cardStatus
+    ? cardStatus.lastChild
+    : null;
+
 let selectedPreset = "balanced";
+let selectedFile = null;
+let activeVersion = "before";
+let isMastering = false;
 
 
 /* =====================================
@@ -23,32 +36,80 @@ let selectedPreset = "balanced";
 
 const glow = document.querySelector(".cursor-glow");
 
-document.addEventListener("mousemove", (event) => {
+if (glow) {
+    document.addEventListener("mousemove", (event) => {
 
-    glow.animate(
-        {
-            left: `${event.clientX}px`,
-            top: `${event.clientY}px`
-        },
-        {
-            duration: 700,
-            fill: "forwards"
-        }
-    );
+        glow.animate(
+            {
+                left: `${event.clientX}px`,
+                top: `${event.clientY}px`
+            },
+            {
+                duration: 700,
+                fill: "forwards"
+            }
+        );
 
-});
+    });
+}
+
+
+/* =====================================
+   ROTATING SECTION TITLE
+===================================== */
+
+const rotatingTitle = document.getElementById("rotatingTitle");
+
+const titleWords = [
+    "YOUR TRACK.",
+    "YOUR SOUND.",
+    "YOUR MASTER.",
+    "YOUR MOMENT."
+];
+
+let titleIndex = 0;
+
+if (rotatingTitle) {
+
+    setInterval(() => {
+
+        rotatingTitle.classList.add("title-changing");
+
+        setTimeout(() => {
+
+            titleIndex =
+                (titleIndex + 1) % titleWords.length;
+
+            rotatingTitle.textContent =
+                titleWords[titleIndex];
+
+            rotatingTitle.classList.remove("title-changing");
+
+        }, 350);
+
+    }, 3000);
+
+}
 
 
 /* =====================================
    PRESETS
 ===================================== */
 
-document.querySelectorAll(".preset").forEach((button) => {
+const presetButtons =
+    document.querySelectorAll(".preset");
+
+presetButtons.forEach((button) => {
 
     button.addEventListener("click", () => {
 
-        document.querySelectorAll(".preset")
-            .forEach(btn => btn.classList.remove("active"));
+        if (!selectedFile || isMastering) {
+            return;
+        }
+
+        presetButtons.forEach(btn =>
+            btn.classList.remove("active")
+        );
 
         button.classList.add("active");
 
@@ -61,10 +122,28 @@ document.querySelectorAll(".preset").forEach((button) => {
 
 
 /* =====================================
+   INITIAL PRESET STATE
+===================================== */
+
+presetButtons.forEach(button => {
+    button.disabled = true;
+});
+
+
+if (masterButton) {
+    masterButton.disabled = true;
+}
+
+
+/* =====================================
    UPLOAD BUTTON
 ===================================== */
 
 uploadButton.addEventListener("click", () => {
+
+    if (isMastering) {
+        return;
+    }
 
     fileInput.click();
 
@@ -79,7 +158,7 @@ fileInput.addEventListener("change", () => {
 
     if (fileInput.files.length > 0) {
 
-        handleFile(fileInput.files[0]);
+        prepareFile(fileInput.files[0]);
 
     }
 
@@ -94,7 +173,9 @@ uploadZone.addEventListener("dragover", (event) => {
 
     event.preventDefault();
 
-    uploadZone.classList.add("dragging");
+    if (!isMastering) {
+        uploadZone.classList.add("dragging");
+    }
 
 });
 
@@ -112,24 +193,28 @@ uploadZone.addEventListener("drop", (event) => {
 
     uploadZone.classList.remove("dragging");
 
-    const file = event.dataTransfer.files[0];
+    if (isMastering) {
+        return;
+    }
+
+    const file =
+        event.dataTransfer.files[0];
 
     if (file) {
-
-        handleFile(file);
-
+        prepareFile(file);
     }
 
 });
 
 
 /* =====================================
-   MASTER TRACK
+   PREPARE FILE
+   DOES NOT MASTER
 ===================================== */
 
-async function handleFile(file) {
+function prepareFile(file) {
 
-    const allowed = [
+    const allowedTypes = [
         "audio/wav",
         "audio/x-wav",
         "audio/mpeg",
@@ -139,7 +224,10 @@ async function handleFile(file) {
     ];
 
     const extension =
-        file.name.split(".").pop().toLowerCase();
+        file.name
+            .split(".")
+            .pop()
+            .toLowerCase();
 
     const allowedExtensions = [
         "wav",
@@ -149,8 +237,10 @@ async function handleFile(file) {
         "m4a"
     ];
 
-    if (!allowed.includes(file.type) &&
-        !allowedExtensions.includes(extension)) {
+    if (
+        !allowedTypes.includes(file.type) &&
+        !allowedExtensions.includes(extension)
+    ) {
 
         alert(
             "Please upload WAV, MP3, FLAC, OGG or M4A."
@@ -161,18 +251,173 @@ async function handleFile(file) {
     }
 
 
-    /* ORIGINAL AUDIO */
+    selectedFile = file;
 
-    originalAudio.src =
+
+    /* =================================
+       ORIGINAL PREVIEW
+    ================================= */
+
+    const localUrl =
         URL.createObjectURL(file);
+
+    originalAudio.src = localUrl;
+
+    originalAudio.load();
 
     originalName.textContent =
         file.name;
 
 
-    /* RESET */
+    /* =================================
+       ENABLE PRESETS
+    ================================= */
+
+    presetButtons.forEach(button => {
+        button.disabled = false;
+    });
+
+
+    if (masterButton) {
+        masterButton.disabled = false;
+    }
+
+
+    /* =================================
+       UPDATE UPLOAD CARD
+    ================================= */
+
+    if (cardStatus) {
+
+        cardStatus.classList.add("file-ready");
+
+        if (cardStatusText) {
+            cardStatusText.textContent = "TRACK READY";
+        }
+
+    }
+
+
+    /* =================================
+       RESET PROCESSING
+    ================================= */
+
+    processingPercent.textContent = "00";
+
+    processingStatus.textContent = "READY";
+
+    processingPanel.classList.remove(
+        "is-processing"
+    );
+
+
+    /* =================================
+       RESET RESULTS
+    ================================= */
 
     results.classList.remove("show");
+
+    masteredAudio.removeAttribute("src");
+
+    masteredAudio.load();
+
+
+    /* =================================
+       RESET COMPARISON
+    ================================= */
+
+    activeVersion = "before";
+
+    updateComparisonUI();
+
+
+    /* =================================
+       SCROLL TO MASTERING
+    ================================= */
+
+    document
+        .getElementById("mastering")
+        .scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+
+}
+
+
+/* =====================================
+   MASTER BUTTON
+===================================== */
+
+if (masterButton) {
+
+    masterButton.addEventListener(
+        "click",
+        startMastering
+    );
+
+}
+
+
+/* =====================================
+   START MASTERING
+===================================== */
+
+async function startMastering() {
+
+    if (!selectedFile) {
+
+        alert(
+            "Please upload a track first."
+        );
+
+        return;
+
+    }
+
+
+    if (isMastering) {
+        return;
+    }
+
+
+    isMastering = true;
+
+
+    /* =================================
+       DISABLE UI
+    ================================= */
+
+    masterButton.disabled = true;
+
+    presetButtons.forEach(button => {
+        button.disabled = true;
+    });
+
+    uploadButton.disabled = true;
+
+
+    /* =================================
+       HIDE OLD RESULTS
+    ================================= */
+
+    results.classList.remove("show");
+
+
+    /* =================================
+       ACTIVATE PROCESSING ANIMATION
+    ================================= */
+
+    processingPanel.classList.add(
+        "is-processing"
+    );
+
+    processingStatus.textContent =
+        "ANALYZING";
+
+    processingPercent.textContent =
+        "00";
+
 
     processingPanel.scrollIntoView({
         behavior: "smooth",
@@ -180,35 +425,44 @@ async function handleFile(file) {
     });
 
 
-    /* PROCESSING */
-
-    processingStatus.textContent =
-        "ANALYZING";
+    /* =================================
+       FAKE VISUAL PROGRESS
+    ================================= */
 
     let percent = 0;
 
-    const progress = setInterval(() => {
+    const progress =
+        setInterval(() => {
 
-        percent += Math.random() * 8;
+            percent +=
+                Math.random() * 7;
 
-        if (percent > 92) {
-            percent = 92;
-        }
+            if (percent > 92) {
+                percent = 92;
+            }
 
-        processingPercent.textContent =
-            Math.floor(percent)
-                .toString()
-                .padStart(2, "0");
+            processingPercent.textContent =
+                Math.floor(percent)
+                    .toString()
+                    .padStart(2, "0");
 
-    }, 180);
+        }, 180);
 
 
     try {
 
-        const formData = new FormData();
+        const formData =
+            new FormData();
 
-        formData.append("file", file);
-        formData.append("preset", selectedPreset);
+        formData.append(
+            "file",
+            selectedFile
+        );
+
+        formData.append(
+            "preset",
+            selectedPreset
+        );
 
 
         processingStatus.textContent =
@@ -216,13 +470,13 @@ async function handleFile(file) {
 
 
         const response =
-            await fetch("/master", {
-
-                method: "POST",
-
-                body: formData
-
-            });
+            await fetch(
+                "/master",
+                {
+                    method: "POST",
+                    body: formData
+                }
+            );
 
 
         const data =
@@ -242,7 +496,9 @@ async function handleFile(file) {
         }
 
 
-        /* COMPLETE */
+        /* =================================
+           COMPLETE
+        ================================= */
 
         processingPercent.textContent =
             "100";
@@ -251,7 +507,9 @@ async function handleFile(file) {
             "COMPLETE";
 
 
-        /* AUDIO */
+        /* =================================
+           AUDIO FILES
+        ================================= */
 
         const originalUrl =
             data.original_url;
@@ -263,15 +521,40 @@ async function handleFile(file) {
         originalAudio.src =
             originalUrl;
 
+        originalAudio.load();
+
+
         masteredAudio.src =
             masteredUrl;
+
+        masteredAudio.load();
 
 
         downloadButton.href =
             masteredUrl;
 
 
-        /* RESULTS */
+        /* =================================
+           RESET COMPARISON
+        ================================= */
+
+        activeVersion = "before";
+
+        updateComparisonUI();
+
+
+        /* =================================
+           STOP PROCESSING ANIMATION
+        ================================= */
+
+        processingPanel.classList.remove(
+            "is-processing"
+        );
+
+
+        /* =================================
+           SHOW RESULTS
+        ================================= */
 
         setTimeout(() => {
 
@@ -289,8 +572,14 @@ async function handleFile(file) {
 
         clearInterval(progress);
 
+
+        processingPanel.classList.remove(
+            "is-processing"
+        );
+
         processingStatus.textContent =
             "ERROR";
+
 
         alert(
             "Mastering failed: " +
@@ -299,7 +588,262 @@ async function handleFile(file) {
 
     }
 
+
+    isMastering = false;
+
+
+    /* =================================
+       RE-ENABLE UI
+    ================================= */
+
+    presetButtons.forEach(button => {
+        button.disabled = false;
+    });
+
+    uploadButton.disabled = false;
+
+    masterButton.disabled = false;
+
 }
+
+
+/* =====================================
+   BEFORE / AFTER SWITCH
+===================================== */
+
+if (beforeButton) {
+
+    beforeButton.addEventListener(
+        "click",
+        () => switchVersion("before")
+    );
+
+}
+
+
+if (afterButton) {
+
+    afterButton.addEventListener(
+        "click",
+        () => switchVersion("after")
+    );
+
+}
+
+
+function switchVersion(version) {
+
+    if (version === activeVersion) {
+        return;
+    }
+
+
+    const currentAudio =
+        activeVersion === "before"
+            ? originalAudio
+            : masteredAudio;
+
+
+    const nextAudio =
+        version === "before"
+            ? originalAudio
+            : masteredAudio;
+
+
+    /*
+       Save exact playback position
+    */
+
+    const currentTime =
+        currentAudio.currentTime;
+
+
+    const wasPlaying =
+        !currentAudio.paused &&
+        !currentAudio.ended;
+
+
+    /*
+       Stop current player
+    */
+
+    currentAudio.pause();
+
+
+    /*
+       Switch active version
+    */
+
+    activeVersion = version;
+
+
+    /*
+       Move new player to EXACT
+       same position
+    */
+
+    try {
+
+        nextAudio.currentTime =
+            currentTime;
+
+    } catch (error) {
+
+        console.log(
+            "Could not sync playback position."
+        );
+
+    }
+
+
+    /*
+       Update visual interface
+    */
+
+    updateComparisonUI();
+
+
+    /*
+       Resume playback if it
+       was already playing
+    */
+
+    if (wasPlaying) {
+
+        nextAudio.play().catch(() => {
+            // Browser autoplay restrictions
+        });
+
+    }
+
+}
+
+
+/* =====================================
+   UPDATE COMPARISON UI
+===================================== */
+
+function updateComparisonUI() {
+
+    if (!comparisonPlayer) {
+        return;
+    }
+
+
+    if (activeVersion === "before") {
+
+        comparisonPlayer.classList
+            .remove("after-active");
+
+        beforeButton.classList.add("active");
+
+        afterButton.classList.remove("active");
+
+
+    } else {
+
+        comparisonPlayer.classList
+            .add("after-active");
+
+        beforeButton.classList.remove("active");
+
+        afterButton.classList.add("active");
+
+    }
+
+}
+
+
+/* =====================================
+   KEEP HIDDEN PLAYER SYNCHRONIZED
+===================================== */
+
+originalAudio.addEventListener(
+    "timeupdate",
+    () => {
+
+        if (activeVersion === "before") {
+
+            if (
+                Math.abs(
+                    masteredAudio.currentTime -
+                    originalAudio.currentTime
+                ) > 0.15
+            ) {
+
+                masteredAudio.currentTime =
+                    originalAudio.currentTime;
+
+            }
+
+        }
+
+    }
+);
+
+
+masteredAudio.addEventListener(
+    "timeupdate",
+    () => {
+
+        if (activeVersion === "after") {
+
+            if (
+                Math.abs(
+                    originalAudio.currentTime -
+                    masteredAudio.currentTime
+                ) > 0.15
+            ) {
+
+                originalAudio.currentTime =
+                    masteredAudio.currentTime;
+
+            }
+
+        }
+
+    }
+);
+
+
+/* =====================================
+   KEEP PLAYBACK STATE SYNCHRONIZED
+===================================== */
+
+originalAudio.addEventListener(
+    "play",
+    () => {
+
+        if (
+            activeVersion === "before" &&
+            masteredAudio.readyState >= 2
+        ) {
+
+            masteredAudio.currentTime =
+                originalAudio.currentTime;
+
+        }
+
+    }
+);
+
+
+masteredAudio.addEventListener(
+    "play",
+    () => {
+
+        if (
+            activeVersion === "after" &&
+            originalAudio.readyState >= 2
+        ) {
+
+            originalAudio.currentTime =
+                masteredAudio.currentTime;
+
+        }
+
+    }
+);
 
 
 /* =====================================
@@ -314,6 +858,7 @@ const ctx =
 
 let particles = [];
 
+
 function resizeCanvas() {
 
     canvas.width =
@@ -324,7 +869,9 @@ function resizeCanvas() {
 
 }
 
+
 resizeCanvas();
+
 
 window.addEventListener(
     "resize",
@@ -332,14 +879,20 @@ window.addEventListener(
 );
 
 
-for (let i = 0; i < 90; i++) {
+for (
+    let i = 0;
+    i < 90;
+    i++
+) {
 
     particles.push({
 
-        x: Math.random() *
+        x:
+            Math.random() *
             window.innerWidth,
 
-        y: Math.random() *
+        y:
+            Math.random() *
             window.innerHeight,
 
         size:
@@ -381,6 +934,7 @@ function animateParticles() {
 
         ctx.beginPath();
 
+
         ctx.arc(
             p.x,
             p.y,
@@ -389,8 +943,10 @@ function animateParticles() {
             Math.PI * 2
         );
 
+
         ctx.fillStyle =
             `rgba(167,139,250,${p.opacity})`;
+
 
         ctx.fill();
 
@@ -402,5 +958,6 @@ function animateParticles() {
     );
 
 }
+
 
 animateParticles();
