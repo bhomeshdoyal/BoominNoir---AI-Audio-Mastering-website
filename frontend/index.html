@@ -281,13 +281,81 @@
                     <!-- ANIMATED WAVE -->
 
                     <div class="wave-container">
+                        <svg
+                            class="fluid-wave"
+                            viewBox="0 0 1600 220"
+                            preserveAspectRatio="none"
+                            aria-hidden="true"
+                        >
+                            <defs>
+                                <linearGradient
+                                    id="masterWaveGradient"
+                                    x1="0%"
+                                    y1="0%"
+                                    x2="100%"
+                                    y2="0%"
+                                >
+                                    <stop offset="0%" stop-color="#d946ef" />
+                                    <stop offset="35%" stop-color="#8b5cf6" />
+                                    <stop offset="65%" stop-color="#6366f1" />
+                                    <stop offset="100%" stop-color="#38bdf8" />
+                                </linearGradient>
 
-                        <div class="wave wave-one"></div>
+                                <linearGradient
+                                    id="masterWaveGlow"
+                                    x1="0%"
+                                    y1="0%"
+                                    x2="100%"
+                                    y2="0%"
+                                >
+                                    <stop offset="0%" stop-color="#d946ef" />
+                                    <stop offset="50%" stop-color="#8b5cf6" />
+                                    <stop offset="100%" stop-color="#3b82f6" />
+                                </linearGradient>
 
-                        <div class="wave wave-two"></div>
+                                <filter
+                                    id="masterWaveBlur"
+                                    x="-20%"
+                                    y="-80%"
+                                    width="140%"
+                                    height="260%"
+                                >
+                                    <feGaussianBlur stdDeviation="12" />
+                                </filter>
+                            </defs>
 
-                        <div class="wave wave-three"></div>
+                            <path
+                                class="fluid-wave-glow"
+                                d="
+                                    M0 145
+                                    C90 125 160 90 250 108
+                                    C340 127 400 166 500 151
+                                    C610 135 670 72 770 88
+                                    C870 104 910 160 1010 145
+                                    C1110 130 1170 73 1270 91
+                                    C1370 110 1450 157 1600 115
+                                    L1600 220
+                                    L0 220
+                                    Z
+                                "
+                            />
 
+                            <path
+                                class="fluid-wave-main"
+                                d="
+                                    M0 145
+                                    C90 125 160 90 250 108
+                                    C340 127 400 166 500 151
+                                    C610 135 670 72 770 88
+                                    C870 104 910 160 1010 145
+                                    C1110 130 1170 73 1270 91
+                                    C1370 110 1450 157 1600 115
+                                    L1600 220
+                                    L0 220
+                                    Z
+                                "
+                            />
+                        </svg>
                     </div>
 
                 </div>
