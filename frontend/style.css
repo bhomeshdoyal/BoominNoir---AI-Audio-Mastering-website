@@ -670,7 +670,8 @@ a {
 
     transition:
         transform .6s var(--ease),
-        border-color .6s;
+        border-color .6s,
+        box-shadow .6s;
 
 }
 
@@ -1036,7 +1037,7 @@ a {
 
 
 /* =====================================
-   ANIMATED WAVES
+   FLUID AUDIO WAVE
 ===================================== */
 
 .wave-container {
@@ -1047,161 +1048,208 @@ a {
 
     right: 0;
 
-    bottom: -10px;
+    bottom: -5px;
 
-    height: 145px;
+    height: 150px;
 
     overflow: hidden;
 
-    opacity: .9;
+    opacity: .95;
+
+    pointer-events: none;
+
+    z-index: 5;
 
 }
 
 
-.wave {
+/* =====================================
+   SVG WAVE
+===================================== */
+
+.fluid-wave {
 
     position: absolute;
 
-    width: 200%;
-
-    height: 130px;
-
-    left: 0;
+    left: -5%;
 
     bottom: 0;
 
-    background-repeat: repeat-x;
+    width: 110%;
 
-    clip-path:
-        polygon(
-            0 55%,
-            5% 45%,
-            10% 65%,
-            15% 35%,
-            20% 58%,
-            25% 30%,
-            30% 55%,
-            35% 25%,
-            40% 60%,
-            45% 38%,
-            50% 60%,
-            55% 30%,
-            60% 55%,
-            65% 35%,
-            70% 62%,
-            75% 32%,
-            80% 55%,
-            85% 40%,
-            90% 60%,
-            95% 35%,
-            100% 55%,
-            100% 100%,
-            0 100%
-        );
+    height: 100%;
+
+    overflow: visible;
 
 }
 
 
-.wave-one {
+/* =====================================
+   MAIN SINGLE WAVE
+===================================== */
 
-    background:
-        linear-gradient(
-            90deg,
-            #d946ef,
-            #8b5cf6,
-            #3b82f6,
-            #d946ef
-        );
+.fluid-wave-main {
 
-    filter: blur(12px);
+    fill: url(#masterWaveGradient);
 
-    opacity: .5;
+    opacity: .82;
+
+    transform-origin: center bottom;
 
     animation:
-        waveMove 5s linear infinite,
-        wavePulse 2.5s ease-in-out infinite;
-
-}
-
-
-.wave-two {
-
-    bottom: -15px;
-
-    background:
-        linear-gradient(
-            90deg,
-            #fff,
-            #8b5cf6,
-            #60a5fa,
-            #fff
-        );
-
-    opacity: .3;
-
-    filter: blur(3px);
-
-    animation:
-        waveMove 7s
-        linear
-        infinite
-        reverse;
-
-}
-
-
-.wave-three {
-
-    bottom: -25px;
-
-    background:
-        linear-gradient(
-            90deg,
-            #7c3aed,
-            #ec4899,
-            #2563eb
-        );
-
-    opacity: .25;
-
-    filter: blur(20px);
-
-    animation:
-        waveMove 9s
-        linear
+        masterFluidWave
+        8s
+        ease-in-out
         infinite;
 
 }
 
 
-@keyframes waveMove {
+/* =====================================
+   SOFT WAVE GLOW
+===================================== */
 
-    from {
+.fluid-wave-glow {
+
+    fill: url(#masterWaveGlow);
+
+    opacity: .45;
+
+    filter: url(#masterWaveBlur);
+
+    transform-origin: center bottom;
+
+    animation:
+        masterFluidGlow
+        9s
+        ease-in-out
+        infinite;
+
+}
+
+
+/* =====================================
+   MAIN FLUID MOVEMENT
+===================================== */
+
+@keyframes masterFluidWave {
+
+    0% {
 
         transform:
-            translateX(0);
+            translateX(-3%)
+            scaleY(.96);
 
     }
 
-    to {
+    25% {
 
         transform:
-            translateX(-50%);
+            translateX(-1%)
+            scaleY(1.04);
+
+    }
+
+    50% {
+
+        transform:
+            translateX(3%)
+            scaleY(.93);
+
+    }
+
+    75% {
+
+        transform:
+            translateX(1%)
+            scaleY(1.07);
+
+    }
+
+    100% {
+
+        transform:
+            translateX(-3%)
+            scaleY(.96);
 
     }
 
 }
 
 
-@keyframes wavePulse {
+/* =====================================
+   GLOW MOVEMENT
+===================================== */
+
+@keyframes masterFluidGlow {
+
+    0% {
+
+        transform:
+            translateX(-4%)
+            scaleY(.95);
+
+        opacity: .35;
+
+    }
 
     50% {
 
         transform:
-            translateX(-25%)
-            scaleY(1.25);
+            translateX(4%)
+            scaleY(1.08);
+
+        opacity: .55;
 
     }
+
+    100% {
+
+        transform:
+            translateX(-4%)
+            scaleY(.95);
+
+        opacity: .35;
+
+    }
+
+}
+
+
+/* =====================================
+   DRAG & DROP
+===================================== */
+
+.master-card.dragging {
+
+    transform:
+        scale(1.02);
+
+    border-color:
+        rgba(167,139,250,.65);
+
+    box-shadow:
+        0 40px 100px rgba(0,0,0,.7),
+        0 0 70px rgba(139,92,246,.12);
+
+}
+
+
+/* Make wave slightly more active while
+   dragging a track */
+
+.master-card.dragging
+.fluid-wave-main {
+
+    animation-duration: 4s;
+
+}
+
+
+.master-card.dragging
+.fluid-wave-glow {
+
+    opacity: .7;
 
 }
 
@@ -2367,25 +2415,6 @@ footer {
 .copyright {
 
     text-align: right;
-
-}
-
-
-/* =====================================
-   DRAG STATE
-===================================== */
-
-.master-card.dragging {
-
-    transform:
-        scale(1.02);
-
-    border-color:
-        #a78bfa;
-
-    box-shadow:
-        0 0 80px
-        rgba(139,92,246,.2);
 
 }
 
